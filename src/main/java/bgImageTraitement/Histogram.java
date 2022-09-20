@@ -32,7 +32,7 @@ public class Histogram {
 				// System.out.println("value of K:"+k+ " value of pixel: " + pixel[j][i]);
 			}
 		}
-		max= Math.max(Math.max(maxR, maxV),maxB);
+		max= Math.max(Math.max(maxR, maxV),maxB)+1;
 	}
 	
 	
@@ -41,10 +41,7 @@ public class Histogram {
 	}
 
 
-	public void setMax(int max) {
-		this.max = max;
-	}
-
+	
 
 	private void process(int pixel) {
 		int alpha = (pixel >> 24) & 0xff;

@@ -1,6 +1,7 @@
 package bgImageTraitement;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.color.ColorSpace;
@@ -15,9 +16,12 @@ public class PanelImage extends JPanel implements MouseWheelListener {
 
 	private BufferedImage bufferedImage;
 	private double zoom = 1.0;
-
+	int w =PropertiesApplication.w;
+	int h = PropertiesApplication.h;
+	private Dimension dim = new Dimension(w,h);
 	public PanelImage() {
 		this.addMouseWheelListener(this);
+		this.setDim();
 	}
 
 	public void paint(Graphics g1) {
@@ -39,10 +43,20 @@ public class PanelImage extends JPanel implements MouseWheelListener {
 		return bufferedImage;
 	}
 
-	public void setBufferedImage(BufferedImage bufferedImage2) {
-		zoom = 300.0d / bufferedImage2.getWidth();
+	public BufferedImage setBufferedImage(BufferedImage bufferedImage2) {
+		zoom = ((double) this.h)/ (double) (bufferedImage2.getHeight());
+		this.w =(int)( zoom * bufferedImage2.getWidth());
+		this.setDim();
+		BufferedImage old = this.bufferedImage;
 		this.bufferedImage = bufferedImage2;
+		return old;
+	}
 
+	private void setDim() {
+		 dim = new Dimension(w,h);
+		this.setPreferredSize(dim);
+		this.setMinimumSize(dim);
+		this.setSize(dim);
 	}
 
 	@Override

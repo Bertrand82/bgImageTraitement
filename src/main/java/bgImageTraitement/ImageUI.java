@@ -24,7 +24,7 @@ public class ImageUI {
 	ProcessImage processImage = new ProcessImage();
 	BufferedImage bufferedImage;
 	PanelImage panelImage = new PanelImage();
-	PanelHistogram panelHistogram = new PanelHistogram();
+	PanelProcessHistogram panelHistogram = new PanelProcessHistogram();
 	final JFileChooser fc = new JFileChooser();
 
 	public static void main(String[] a) {
@@ -39,14 +39,14 @@ public class ImageUI {
 		panelGlobal.add(createMenuBar(), BorderLayout.NORTH);
 		panelGlobal.add(panelImage, BorderLayout.CENTER);
 		panelGlobal.add(panelHistogram, BorderLayout.EAST);
-		Dimension dim = new Dimension(400, 200);
-		panelGlobal.setPreferredSize(dim);
+		
 		jframe.add(panelGlobal);
 		jframe.setTitle("Bg Traitement Image");
 		jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		jframe.pack();
 		jframe.setVisible(true);
 		loadImage(fileImageTest);
+		jframe.pack();
 	}
 
 	/* Methode de construction de la barre de menu */
@@ -71,7 +71,7 @@ public class ImageUI {
 		JMenuItem mnuSaveFile = new JMenuItem("Save File ...");
 		mnuFile.add(mnuSaveFile);
 		mnuSaveFile.addActionListener((event) -> {
-			System.out.println("bbbbbbbbbbbbbbb " + event);
+			System.out.println("save file No implemented " + event);
 		});
 
 		JMenuItem mnuSaveFileAs = new JMenuItem("Save File As ...");
@@ -93,6 +93,9 @@ public class ImageUI {
 		JMenuItem mnuUndo = new JMenuItem("Undo");
 		mnuUndo.setMnemonic('U');
 		mnuUndo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK));
+		mnuUndo.addActionListener((event) -> {
+			undo();
+		});
 		mnuEdit.add(mnuUndo);
 
 		JMenuItem mnuRedo = new JMenuItem("Redo");
@@ -120,10 +123,15 @@ public class ImageUI {
 		menuBar.add(mnuEdit);
 
 		// Définition du menu déroulant "Edit" et de son contenu
-		JMenuItem mnuProcess = new JMenuItem("Process");
-		mnuProcess.addActionListener((event) -> process());
-		mnuEdit.setMnemonic('R');
-		menuBar.add(mnuProcess);
+				JMenuItem mnuToGrey = new JMenuItem("To Grey");
+				mnuToGrey.addActionListener((event) ->toGrey());
+				mnuEdit.setMnemonic('R');
+				menuBar.add(mnuToGrey);
+				// Définition du menu déroulant "Edit" et de son contenu
+				JMenuItem mnuProcess = new JMenuItem("Process");
+				mnuProcess.addActionListener((event) -> processHistogram());
+				mnuEdit.setMnemonic('R');
+				menuBar.add(mnuProcess);
 
 		// Définition du menu déroulant "Help" et de son contenu
 		JMenu mnuHelp = new JMenu("Help");
@@ -132,6 +140,12 @@ public class ImageUI {
 		menuBar.add(mnuHelp);
 
 		return menuBar;
+	}
+
+	
+
+	private void undo() {
+		System.err.println("undo");
 	}
 
 	private void chooseImage() {
@@ -149,9 +163,13 @@ public class ImageUI {
 	private void log(String s) {
 		System.out.println("log " + s);
 	}
+	
+	private void toGrey() {
+		this.panelImage.convertToGrey();
+		this.panelImage.updateUI();
+	}
 
-	private void process() {
-		//this.panelImage.convertToGrey();
+	private void processHistogram() {
 		Histogram histogramme = this.panelImage.getHistogram();
 		this.panelHistogram.setHistogram(histogramme);
 		this.panelHistogram.repaint();

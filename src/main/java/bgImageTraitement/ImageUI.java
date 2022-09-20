@@ -5,10 +5,13 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.awt.image.ConvolveOp;
+import java.awt.image.Kernel;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -18,6 +21,9 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+
+import bgImageTraitement.filtre.FiltreSeuilRedisplay;
+import bgImageTraitement.filtre.ImageFiltre;
 
 public class ImageUI {
 	File fileImageTest = new File("images/maison.jpg");
@@ -39,7 +45,7 @@ public class ImageUI {
 		panelGlobal.add(createMenuBar(), BorderLayout.NORTH);
 		panelGlobal.add(panelImage, BorderLayout.CENTER);
 		panelGlobal.add(panelHistogram, BorderLayout.EAST);
-		
+
 		jframe.add(panelGlobal);
 		jframe.setTitle("Bg Traitement Image");
 		jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -59,7 +65,6 @@ public class ImageUI {
 		JMenu mnuFile = new JMenu("File");
 		mnuFile.setMnemonic('F');
 
-		
 		mnuFile.addSeparator();
 
 		JMenuItem mnuOpenFile = new JMenuItem("Open File ...");
@@ -76,6 +81,9 @@ public class ImageUI {
 
 		JMenuItem mnuSaveFileAs = new JMenuItem("Save File As ...");
 		mnuFile.add(mnuSaveFileAs);
+		mnuSaveFile.addActionListener((event) -> {
+			saveAs();
+		});
 
 		mnuFile.addSeparator();
 
@@ -123,15 +131,23 @@ public class ImageUI {
 		menuBar.add(mnuEdit);
 
 		// Définition du menu déroulant "Edit" et de son contenu
-				JMenuItem mnuToGrey = new JMenuItem("To Grey");
-				mnuToGrey.addActionListener((event) ->toGrey());
-				mnuEdit.setMnemonic('R');
-				menuBar.add(mnuToGrey);
-				// Définition du menu déroulant "Edit" et de son contenu
-				JMenuItem mnuProcess = new JMenuItem("Process");
-				mnuProcess.addActionListener((event) -> processHistogram());
-				mnuEdit.setMnemonic('R');
-				menuBar.add(mnuProcess);
+		JMenuItem mnuToGrey = new JMenuItem("To Grey");
+		mnuToGrey.addActionListener((event) -> toGrey());
+		mnuEdit.setMnemonic('R');
+		menuBar.add(mnuToGrey);
+		// Définition du menu déroulant "Edit" et de son contenu
+		JMenuItem mnuHisto = new JMenuItem("Histo");
+		mnuHisto.addActionListener((event) -> processHistogram());
+		mnuEdit.setMnemonic('R');
+		menuBar.add(mnuHisto);
+		JMenuItem mnuEdge = new JMenuItem("Edge");
+		mnuEdge.addActionListener((event) -> edge());
+		mnuEdit.setMnemonic('R');
+		menuBar.add(mnuEdge);
+		JMenuItem mnuProcess = new JMenuItem("Process");
+		mnuProcess.addActionListener((event) -> process());
+		mnuEdit.setMnemonic('R');
+		menuBar.add(mnuProcess);
 
 		// Définition du menu déroulant "Help" et de son contenu
 		JMenu mnuHelp = new JMenu("Help");
@@ -143,6 +159,17 @@ public class ImageUI {
 	}
 
 	
+	private void saveAs() {
+		try {
+			System.out.println("save as ");
+			File outputfile = new File("transformed.jpg");
+			ImageIO.write(this.panelImage.getBufferedImage(), "jpg", outputfile);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 
 	private void undo() {
 		System.err.println("undo");
@@ -163,7 +190,7 @@ public class ImageUI {
 	private void log(String s) {
 		System.out.println("log " + s);
 	}
-	
+
 	private void toGrey() {
 		this.panelImage.convertToGrey();
 		this.panelImage.updateUI();
@@ -173,15 +200,42 @@ public class ImageUI {
 		Histogram histogramme = this.panelImage.getHistogram();
 		this.panelHistogram.setHistogram(histogramme);
 		this.panelHistogram.repaint();
-		System.out.println(" histo ::: "+histogramme.toStringDetail());
+		System.out.println(" histo ::: " + histogramme.toStringDetail());
+	}
+
+	private void process() {
+		System.out.println("------------->process");
+		FiltreSeuilRedisplay filtreSeuil1 = new FiltreSeuilRedisplay(30, 0xd8, true, true, false);
+		BufferedImage b1 = ImageFiltre.createBufferedImage(this.panelImage.getBufferedImage(), filtreSeuil1);
+		this.panelImage.setBufferedImage(b1);
+		FiltreSeuilRedisplay filtreSeuil2 = new FiltreSeuilRedisplay(30, 0xa0, false, false, true);
+		BufferedImage b2 = ImageFiltre.createBufferedImage(this.panelImage.getBufferedImage(), filtreSeuil2);
+		this.panelImage.setBufferedImage(b2);
+		this.panelImage.repaint();
 	}
 
 	private void loadImage(File f) {
 		System.out.println("Process ");
-
 		this.bufferedImage = this.processImage.readImage(f);
 		panelImage.setBufferedImage(this.bufferedImage);
 		panelImage.repaint();
 	}
+	
+	private void edge() {
+		System.out.println("edge ");
+		 float[] SHARPEN3x3 = {
+                 1.f, 0.f, -1.f,
+                 2.f, 0.0f, -2.f,
+                 1.f, 0.f, -1.f};
+		BufferedImage srcbimg = this.panelImage.getBufferedImage();
+		BufferedImage dstbimg = new BufferedImage(srcbimg.getWidth(), srcbimg.getHeight(),BufferedImage.TYPE_INT_RGB);
+		double[][] FILTER_SOBEL_V = {{1, 0, -1}, {2, 0, -2}, {1, 0, -1}};
+		Kernel kernel = new Kernel(3,3,SHARPEN3x3);
+		ConvolveOp cop = new ConvolveOp(kernel,ConvolveOp.EDGE_NO_OP, null);
+		cop.filter(srcbimg,dstbimg);
+		this.panelImage.setBufferedImage(dstbimg);
+		panelImage.repaint();
+	}
+
 
 }

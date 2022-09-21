@@ -24,6 +24,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
+import bgImageTraitement.filtre.FiltreInverseColor;
 import bgImageTraitement.filtre.FiltreSeuilRedisplay;
 import bgImageTraitement.filtre.ImageBgTool;
 import bgImageTraitement.filtre.ImageFiltre;
@@ -31,7 +32,7 @@ import bgImageTraitement.filtre.ImageFiltre;
 public class ImageUI {
 	File fileImageTest = new File("images/maison.jpg");
 	ProcessImage processImage = new ProcessImage();
-	List<BufferedImage> listBufferedImage  = new ArrayList<BufferedImage>();
+	List<BufferedImage> listBufferedImage = new ArrayList<BufferedImage>();
 	PanelImage panelImage = new PanelImage();
 	PanelProcessHistogram panelHistogram = new PanelProcessHistogram();
 	final JFileChooser fc = new JFileChooser();
@@ -137,6 +138,15 @@ public class ImageUI {
 		menuBar.add(mnuEdit);
 
 		// Définition du menu déroulant "Edit" et de son contenu
+		JMenuItem mnuFlipFlop = new JMenuItem("Flip Flop");
+		mnuFlipFlop.addActionListener((event) -> flipFlop());
+		menuBar.add(mnuFlipFlop);
+		// Définition du menu déroulant "Edit" et de son contenu
+		JMenuItem mnuToRGB = new JMenuItem("To RGB");
+		mnuToRGB.addActionListener((event) -> toRGB());
+		mnuEdit.setMnemonic('R');
+		menuBar.add(mnuToRGB);
+
 		JMenuItem mnuToGrey = new JMenuItem("To Grey");
 		mnuToGrey.addActionListener((event) -> toGrey());
 		mnuEdit.setMnemonic('R');
@@ -168,6 +178,12 @@ public class ImageUI {
 		return menuBar;
 	}
 
+	private void flipFlop() {
+		FiltreInverseColor filtreInverscolor = new FiltreInverseColor();
+		BufferedImage b1 = ImageFiltre.createBufferedImage(this.panelImage.getBufferedImage(), filtreInverscolor);
+		this.setBufferedImage(b1);
+		
+	}
 
 	private void saveAs() {
 		try {
@@ -180,8 +196,6 @@ public class ImageUI {
 		}
 
 	}
-
-
 
 	private void chooseImage() {
 		int returnVal = fc.showOpenDialog(this.panelImage);
@@ -200,8 +214,13 @@ public class ImageUI {
 	}
 
 	private void toGrey() {
-		this.panelImage.convertToGrey();
-		this.panelImage.updateUI();
+		BufferedImage b = ImageBgTool.convertToGrey(this.getBufferedImage());
+		this.setBufferedImage(b);
+	}
+
+	private void toRGB() {
+		BufferedImage b = ImageBgTool.convertToRgb(this.getBufferedImage());
+		this.setBufferedImage(b);
 	}
 
 	private void processHistogram() {
@@ -209,8 +228,7 @@ public class ImageUI {
 		this.panelHistogram.setHistogram(histogramme);
 		this.panelHistogram.repaint();
 		System.out.println(" histo ::: " + histogramme.toStringDetail());
-		
-		
+
 	}
 
 	private void process() {
@@ -227,10 +245,10 @@ public class ImageUI {
 	private void loadImage(File f) {
 		System.out.println("Process ");
 		BufferedImage bufferedImage = this.processImage.readImage(f);
-		setBufferedImage(bufferedImage);
+		BufferedImage bufferedImage2 = ImageBgTool.convertToRgb(bufferedImage);
+		setBufferedImage(bufferedImage2);
 		panelImage.repaint();
 	}
-	
 
 	private void edge() {
 		System.out.println("edge ");
@@ -244,11 +262,15 @@ public class ImageUI {
 	private void blur() {
 		System.out.println("blur ");
 		BufferedImage srcbimg = this.panelImage.getBufferedImage();
-		BufferedImage dstbimg = ImageBgTool.blur(srcbimg);
+		BufferedImage dstbimg = ImageBgTool.blur2(srcbimg,3);
 		setBufferedImage(dstbimg);
 		panelImage.repaint();
 	}
-	
+
+	private BufferedImage getBufferedImage() {
+		return this.panelImage.getBufferedImage();
+	}
+
 	private void setBufferedImage(BufferedImage buf) {
 		this.listBufferedImage.add(buf);
 		panelImage.setBufferedImage2(buf);
@@ -256,37 +278,37 @@ public class ImageUI {
 
 	private void redo() {
 		int i = getOrdreImage(this.panelImage.getBufferedImage());
-		if (i>= listBufferedImage.size()-1)  {
+		if (i >= listBufferedImage.size() - 1) {
 			log("No redo");
 			return;
 		}
-		log("redo i : "+(i+1)+" / "+listBufferedImage.size());
-		BufferedImage b_next = this.listBufferedImage.get(i+1);
+		log("redo i : " + (i + 1) + " / " + listBufferedImage.size());
+		BufferedImage b_next = this.listBufferedImage.get(i + 1);
 		panelImage.setBufferedImage2(b_next);
 	}
+
 	private void undo() {
-		
+
 		int i = getOrdreImage(this.panelImage.getBufferedImage());
-		if(i <= 0) {
+		if (i <= 0) {
 			log("no Undo");
 			return;
 		}
-		log("undo  i :"+(i-1)+" / "+listBufferedImage.size());
-		BufferedImage b_Z_1 = this.listBufferedImage.get(i-1);
+		log("undo  i :" + (i - 1) + " / " + listBufferedImage.size());
+		BufferedImage b_Z_1 = this.listBufferedImage.get(i - 1);
 		panelImage.setBufferedImage2(b_Z_1);
-		
+
 	}
 
 	private int getOrdreImage(BufferedImage bufferedImage) {
-		int i=0;
+		int i = 0;
 		for (BufferedImage image : listBufferedImage) {
-			if (image .equals(bufferedImage)) {
+			if (image.equals(bufferedImage)) {
 				return i;
 			}
 			i++;
 		}
 		return -1;
 	}
-
 
 }

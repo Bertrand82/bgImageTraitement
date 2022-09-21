@@ -23,17 +23,41 @@ public class ImageBgTool {
 		 };
 		BufferedImage srcbimg = convertToGrey(image);
 		BufferedImage dstbimg = new BufferedImage(srcbimg.getWidth(), srcbimg.getHeight(),BufferedImage.TYPE_INT_RGB);
-		Kernel kernel = new Kernel(3,3,SHARPEN3x3);
+		Kernel kernel = new Kernel(3,3,normalize3(SHARPEN3x3));
 		ConvolveOp cop = new ConvolveOp(kernel,ConvolveOp.EDGE_NO_OP, null);
 		cop.filter(srcbimg,dstbimg);
 		return dstbimg;
 	}
 	
-	public static BufferedImage blur (BufferedImage srcbimg) {
-		float k =0.2f;
-		float[] filter = {1f*k, 2f*k, 1f*k, 2f*k, 4f*k, 2f*k, 1f*k, 2f*k, 1f*k};
-		int filterWidth = 3;
-		Kernel kernel = new Kernel(3,3,filter);
+	private static float[] normalize3(float[] matrice) {
+		float norme = normeMatrice(matrice);
+		float[] mNormalize = new float[matrice.length];
+		for(int i =0;i<matrice.length;i++) {
+			mNormalize[i]=matrice[i]/norme;
+		}
+		float norme2 = normeMatrice(mNormalize);
+		System.out.println("normalize norme : "+norme+"  "+norme2+"     size2 "+matrice.length);
+		return mNormalize;
+	}
+
+	private static float normeMatrice(float[] matrice) {
+		float s2=0;
+		for(int i =0;i<matrice.length;i++) {
+			s2+=(matrice[i]*matrice[i]);
+		}
+		double n = Math.sqrt(s2);
+		return (float) n;
+	}
+
+
+
+	public static BufferedImage blur2 (BufferedImage srcbimg,int size) {
+		float[] filter = new float[size*size];
+		 for (int i = 0; i < filter.length; i++) {
+		        filter[i] = 1f;
+		    }
+		
+		Kernel kernel = new Kernel(size,size,normalize3(filter));
 		ConvolveOp cop = new ConvolveOp(kernel,ConvolveOp.EDGE_NO_OP, null);
 		BufferedImage dstbimg = new BufferedImage(srcbimg.getWidth(), srcbimg.getHeight(),BufferedImage.TYPE_INT_RGB);
 		cop.filter(srcbimg,dstbimg);
@@ -50,4 +74,16 @@ public class ImageBgTool {
 		bufferedImageGrey = op.filter(image, null);
 		return bufferedImageGrey;
 	}
+	
+	public static BufferedImage convertToRgb(BufferedImage buf) {
+		final int width = buf.getWidth();
+	    final int height = buf.getHeight();
+	    BufferedImage newRGB = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+	    newRGB .createGraphics().drawImage(buf, 0, 0, width, height, null);
+	    return newRGB;
+	    
+	}
+	
+	
+
 }

@@ -16,12 +16,12 @@ public class PanelImage extends JPanel implements MouseWheelListener {
 
 	private BufferedImage bufferedImage;
 	private double zoom = 1.0;
-	int w =PropertiesApplication.w;
-	int h = PropertiesApplication.h;
-	private Dimension dim = new Dimension(w,h);
+	int wIni =PropertiesApplication.w;
+	int hIni = PropertiesApplication.h;
+	private Dimension dimIni = new Dimension(wIni,hIni);
 	public PanelImage() {
 		this.addMouseWheelListener(this);
-		this.setDim();
+		this.setDimIni();
 	}
 
 	public void paint(Graphics g1) {
@@ -44,20 +44,19 @@ public class PanelImage extends JPanel implements MouseWheelListener {
 	}
 
 	public void setBufferedImage2(BufferedImage bufferedImage2) {
-		zoom = ((double) this.h)/ (double) (bufferedImage2.getHeight());
-		this.w =(int)( zoom * bufferedImage2.getWidth());
-		this.setDim();
+		zoom = ((double) this.getHeight())/ (double) (bufferedImage2.getHeight());
+		
 		BufferedImage old = this.bufferedImage;
 		this.bufferedImage = bufferedImage2;
 		repaint();
 		
 	}
 
-	private void setDim() {
-		 dim = new Dimension(w,h);
-		this.setPreferredSize(dim);
-		this.setMinimumSize(dim);
-		this.setSize(dim);
+	private void setDimIni() {
+		 
+		this.setPreferredSize(dimIni);
+		this.setMinimumSize(dimIni);
+		this.setSize(dimIni);
 	}
 
 	@Override
@@ -72,17 +71,7 @@ public class PanelImage extends JPanel implements MouseWheelListener {
 
 	}
 
-	public void convertToGrey() {
-		System.out.println("ConvertToGrey");
-		ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_GRAY);
-		ColorConvertOp op = new ColorConvertOp(cs, null);
-
-		BufferedImage bufferedImageGrey = new BufferedImage(this.bufferedImage.getWidth(),
-				this.bufferedImage.getHeight(), BufferedImage.TYPE_BYTE_INDEXED);
-		bufferedImageGrey = op.filter(bufferedImage, null);
-		this.bufferedImage = bufferedImageGrey;
-	}
-
+	
 	public Histogram getHistogram() {
 		return new Histogram(this.bufferedImage);
 		

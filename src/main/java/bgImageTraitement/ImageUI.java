@@ -113,6 +113,9 @@ public class ImageUI {
 		mnuRedo.setMnemonic('R');
 		mnuRedo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, KeyEvent.CTRL_DOWN_MASK));
 		mnuEdit.add(mnuRedo);
+		mnuRedo.addActionListener((event) -> {
+			redo();
+		});
 
 		mnuEdit.addSeparator();
 
@@ -165,6 +168,7 @@ public class ImageUI {
 		return menuBar;
 	}
 
+
 	private void saveAs() {
 		try {
 			System.out.println("save as ");
@@ -205,6 +209,8 @@ public class ImageUI {
 		this.panelHistogram.setHistogram(histogramme);
 		this.panelHistogram.repaint();
 		System.out.println(" histo ::: " + histogramme.toStringDetail());
+		
+		
 	}
 
 	private void process() {
@@ -247,6 +253,17 @@ public class ImageUI {
 		this.listBufferedImage.add(buf);
 		panelImage.setBufferedImage2(buf);
 	}
+
+	private void redo() {
+		int i = getOrdreImage(this.panelImage.getBufferedImage());
+		if (i>= listBufferedImage.size()-1)  {
+			log("No redo");
+			return;
+		}
+		log("redo i : "+(i+1)+" / "+listBufferedImage.size());
+		BufferedImage b_next = this.listBufferedImage.get(i+1);
+		panelImage.setBufferedImage2(b_next);
+	}
 	private void undo() {
 		
 		int i = getOrdreImage(this.panelImage.getBufferedImage());
@@ -254,7 +271,7 @@ public class ImageUI {
 			log("no Undo");
 			return;
 		}
-		log("undo  i :"+i);
+		log("undo  i :"+(i-1)+" / "+listBufferedImage.size());
 		BufferedImage b_Z_1 = this.listBufferedImage.get(i-1);
 		panelImage.setBufferedImage2(b_Z_1);
 		

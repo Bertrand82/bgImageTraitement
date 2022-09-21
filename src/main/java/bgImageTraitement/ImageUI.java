@@ -10,6 +10,8 @@ import java.awt.image.Kernel;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.Action;
@@ -23,12 +25,13 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
 import bgImageTraitement.filtre.FiltreSeuilRedisplay;
+import bgImageTraitement.filtre.ImageBgTool;
 import bgImageTraitement.filtre.ImageFiltre;
 
 public class ImageUI {
 	File fileImageTest = new File("images/maison.jpg");
 	ProcessImage processImage = new ProcessImage();
-	BufferedImage bufferedImage;
+	List<BufferedImage> listBufferedImage  = new ArrayList<BufferedImage>();
 	PanelImage panelImage = new PanelImage();
 	PanelProcessHistogram panelHistogram = new PanelProcessHistogram();
 	final JFileChooser fc = new JFileChooser();
@@ -140,6 +143,10 @@ public class ImageUI {
 		mnuHisto.addActionListener((event) -> processHistogram());
 		mnuEdit.setMnemonic('R');
 		menuBar.add(mnuHisto);
+		JMenuItem mnuBlur = new JMenuItem("Blur");
+		mnuBlur.addActionListener((event) -> blur());
+		mnuBlur.setMnemonic('R');
+		menuBar.add(mnuBlur);
 		JMenuItem mnuEdge = new JMenuItem("Edge");
 		mnuEdge.addActionListener((event) -> edge());
 		mnuEdit.setMnemonic('R');
@@ -158,7 +165,6 @@ public class ImageUI {
 		return menuBar;
 	}
 
-	
 	private void saveAs() {
 		try {
 			System.out.println("save as ");
@@ -168,12 +174,10 @@ public class ImageUI {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
 
-	private void undo() {
-		System.err.println("undo");
-	}
+
 
 	private void chooseImage() {
 		int returnVal = fc.showOpenDialog(this.panelImage);
@@ -207,34 +211,64 @@ public class ImageUI {
 		System.out.println("------------->process");
 		FiltreSeuilRedisplay filtreSeuil1 = new FiltreSeuilRedisplay(30, 0xd8, true, true, false);
 		BufferedImage b1 = ImageFiltre.createBufferedImage(this.panelImage.getBufferedImage(), filtreSeuil1);
-		this.panelImage.setBufferedImage(b1);
+		setBufferedImage(b1);
 		FiltreSeuilRedisplay filtreSeuil2 = new FiltreSeuilRedisplay(30, 0xa0, false, false, true);
 		BufferedImage b2 = ImageFiltre.createBufferedImage(this.panelImage.getBufferedImage(), filtreSeuil2);
-		this.panelImage.setBufferedImage(b2);
+		setBufferedImage(b2);
 		this.panelImage.repaint();
 	}
 
 	private void loadImage(File f) {
 		System.out.println("Process ");
-		this.bufferedImage = this.processImage.readImage(f);
-		panelImage.setBufferedImage(this.bufferedImage);
+		BufferedImage bufferedImage = this.processImage.readImage(f);
+		setBufferedImage(bufferedImage);
 		panelImage.repaint();
 	}
 	
+
 	private void edge() {
 		System.out.println("edge ");
-		 float[] SHARPEN3x3 = {
-                 1.f, 0.f, -1.f,
-                 2.f, 0.0f, -2.f,
-                 1.f, 0.f, -1.f};
+
 		BufferedImage srcbimg = this.panelImage.getBufferedImage();
-		BufferedImage dstbimg = new BufferedImage(srcbimg.getWidth(), srcbimg.getHeight(),BufferedImage.TYPE_INT_RGB);
-		double[][] FILTER_SOBEL_V = {{1, 0, -1}, {2, 0, -2}, {1, 0, -1}};
-		Kernel kernel = new Kernel(3,3,SHARPEN3x3);
-		ConvolveOp cop = new ConvolveOp(kernel,ConvolveOp.EDGE_NO_OP, null);
-		cop.filter(srcbimg,dstbimg);
-		this.panelImage.setBufferedImage(dstbimg);
+		BufferedImage dstbimg = ImageBgTool.getEdge(srcbimg);
+		setBufferedImage(dstbimg);
 		panelImage.repaint();
+	}
+
+	private void blur() {
+		System.out.println("blur ");
+		BufferedImage srcbimg = this.panelImage.getBufferedImage();
+		BufferedImage dstbimg = ImageBgTool.blur(srcbimg);
+		setBufferedImage(dstbimg);
+		panelImage.repaint();
+	}
+	
+	private void setBufferedImage(BufferedImage buf) {
+		this.listBufferedImage.add(buf);
+		panelImage.setBufferedImage2(buf);
+	}
+	private void undo() {
+		
+		int i = getOrdreImage(this.panelImage.getBufferedImage());
+		if(i <= 0) {
+			log("no Undo");
+			return;
+		}
+		log("undo  i :"+i);
+		BufferedImage b_Z_1 = this.listBufferedImage.get(i-1);
+		panelImage.setBufferedImage2(b_Z_1);
+		
+	}
+
+	private int getOrdreImage(BufferedImage bufferedImage) {
+		int i=0;
+		for (BufferedImage image : listBufferedImage) {
+			if (image .equals(bufferedImage)) {
+				return i;
+			}
+			i++;
+		}
+		return -1;
 	}
 
 

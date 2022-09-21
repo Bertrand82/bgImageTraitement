@@ -43,13 +43,14 @@ public class PanelImage extends JPanel implements MouseWheelListener {
 		return bufferedImage;
 	}
 
-	public BufferedImage setBufferedImage(BufferedImage bufferedImage2) {
+	public void setBufferedImage2(BufferedImage bufferedImage2) {
 		zoom = ((double) this.h)/ (double) (bufferedImage2.getHeight());
 		this.w =(int)( zoom * bufferedImage2.getWidth());
 		this.setDim();
 		BufferedImage old = this.bufferedImage;
 		this.bufferedImage = bufferedImage2;
-		return old;
+		repaint();
+		
 	}
 
 	private void setDim() {

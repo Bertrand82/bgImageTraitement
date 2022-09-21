@@ -14,11 +14,28 @@ public class ImageBgTool {
                  1.f, 0.f, -1.f,
                  2.f, 0.0f, -2.f,
                  1.f, 0.f, -1.f};
+		 float[] SHARPEN5x5 = {
+				 -5f  ,-4f , 0f,   4f ,  5f,
+				 -8f ,-10f , 0f,  10f,   8f,
+				 -10f, -20f,  0f,  20f,  10f,
+				 -8f, -10f,  0f,  10f ,  8f,
+				 -5f,  -4f,  0f,   4f,   5f
+		 };
 		BufferedImage srcbimg = convertToGrey(image);
 		BufferedImage dstbimg = new BufferedImage(srcbimg.getWidth(), srcbimg.getHeight(),BufferedImage.TYPE_INT_RGB);
-		double[][] FILTER_SOBEL_V = {{1, 0, -1}, {2, 0, -2}, {1, 0, -1}};
 		Kernel kernel = new Kernel(3,3,SHARPEN3x3);
 		ConvolveOp cop = new ConvolveOp(kernel,ConvolveOp.EDGE_NO_OP, null);
+		cop.filter(srcbimg,dstbimg);
+		return dstbimg;
+	}
+	
+	public static BufferedImage blur (BufferedImage srcbimg) {
+		float k =0.2f;
+		float[] filter = {1f*k, 2f*k, 1f*k, 2f*k, 4f*k, 2f*k, 1f*k, 2f*k, 1f*k};
+		int filterWidth = 3;
+		Kernel kernel = new Kernel(3,3,filter);
+		ConvolveOp cop = new ConvolveOp(kernel,ConvolveOp.EDGE_NO_OP, null);
+		BufferedImage dstbimg = new BufferedImage(srcbimg.getWidth(), srcbimg.getHeight(),BufferedImage.TYPE_INT_RGB);
 		cop.filter(srcbimg,dstbimg);
 		return dstbimg;
 	}

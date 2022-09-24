@@ -31,7 +31,6 @@ import bgImageTraitement.filtre.ImageFiltre;
 
 public class ImageUI {
 	File fileImageTest = new File("images/maison.jpg");
-	ProcessImage processImage = new ProcessImage();
 	List<BufferedImage> listBufferedImage = new ArrayList<BufferedImage>();
 	PanelImage panelImage = new PanelImage();
 	PanelProcessHistogram panelHistogram = new PanelProcessHistogram();
@@ -244,7 +243,7 @@ public class ImageUI {
 
 	private void loadImage(File f) {
 		System.out.println("Process ");
-		BufferedImage bufferedImage = this.processImage.readImage(f);
+		BufferedImage bufferedImage = ImageBgTool.readImage(f);
 		BufferedImage bufferedImage2 = ImageBgTool.convertToRgb(bufferedImage);
 		setBufferedImage(bufferedImage2);
 		panelImage.repaint();

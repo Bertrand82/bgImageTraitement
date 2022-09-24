@@ -5,6 +5,10 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
 import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 public class ImageBgTool {
 
@@ -82,6 +86,16 @@ public class ImageBgTool {
 	    newRGB .createGraphics().drawImage(buf, 0, 0, width, height, null);
 	    return newRGB;
 	    
+	}
+	
+	public static BufferedImage readImage(File fileImage)  {
+		try {
+			BufferedImage image = ImageIO.read(fileImage);
+			return image;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 	

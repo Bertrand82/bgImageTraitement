@@ -33,17 +33,17 @@ public class PanelImage extends JPanel implements MouseWheelListener {
 	private Dimension dimIni = new Dimension(wIni, hIni);
 	private JPopupMenu popupMenu = new JPopupMenu();
 	private JCheckBoxMenuItem[] checkboxPoints = new JCheckBoxMenuItem[3];
-	private MetaInfos mergeInfos;
+	private MetaInfos metasInfos;
 	public PanelImage() {
 		this(new MetaInfos());
 	}
 	public PanelImage(MetaInfos mergeInfos) {
-		this.mergeInfos=mergeInfos;
+		this.metasInfos=mergeInfos;
 		this.addMouseWheelListener(this);
 		this.setDimIni();
-		JMenuItem menuSelect = new JMenuItem("Select");
+		JMenuItem menuSelect = new JMenuItem("save merge Points");
 		menuSelect.addActionListener((event) -> {
-			System.out.println("select");
+			saveMetasInfos();
 		});
 		popupMenu.add(menuSelect);
 		for(int i=0; i<checkboxPoints.length;i++) {
@@ -76,6 +76,10 @@ public class PanelImage extends JPanel implements MouseWheelListener {
 		
 	}
 
+	private void saveMetasInfos() {
+		this.metasInfos.save();
+		
+	}
 	private void processMergePoint(ActionEvent item) {
 		JCheckBoxMenuItem cbmi = (JCheckBoxMenuItem) item.getSource();
 		System.out.println("processPointA  "+cbmi.getText()+"  "+cbmi.isSelected());
@@ -86,6 +90,7 @@ public class PanelImage extends JPanel implements MouseWheelListener {
 		}else {
 			this.setCursor(cursorDefault);
 		}
+		repaint();
 	}
 	
 	private void deSelectAllCheckBox() {
@@ -106,8 +111,10 @@ public class PanelImage extends JPanel implements MouseWheelListener {
 		int y  = (int) (e.getY()/zoom);
 		int i = getMergePointNumber();
 		if (i >=0) {
-			this.mergeInfos.getPoints()[i]= new Point(x,y);
+			this.metasInfos.getPoints()[i]= new Point(x,y);
 		}
+		this.deSelectAllCheckBox();
+		repaint();
 		System.out.println("mouse mouseClicked   X: " + x + "  Y: " + y + " zoom "+zoom);
 	
 	}
@@ -133,9 +140,23 @@ public class PanelImage extends JPanel implements MouseWheelListener {
 			g2.fillRect(0, 0, w, h);
 			g2.scale(zoom, zoom);
 			g2.drawImage(bufferedImage, 0, 0, null);
+			drawMergePoints(g2);
 		}
 	}
 
+	private void drawMergePoints(Graphics2D g2) {
+		g2.setColor(Color.RED);
+		for(int i=0;i<3;i++) {
+			Point p = this.metasInfos.getPoints()[i];
+			if (p != null) {
+				int r1=(int) (10/zoom);
+				g2.drawOval(p.x-r1, p.y-r1, 2*r1, 2*r1);
+				int r2=(int) (1/zoom);
+				g2.fillOval(p.x-r2, p.y-r2, 2*r2, 2*r2);
+			}
+		}
+		
+	}
 	public BufferedImage getBufferedImage() {
 		return bufferedImage;
 	}

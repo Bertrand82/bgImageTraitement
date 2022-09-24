@@ -17,5 +17,8 @@ public class MetaInfos {
 	public void setFileNameImage(String fileNameImage) {
 		this.fileNameImage = fileNameImage;
 	}
+	public void save() {
+		System.out.println("save no implemented yet");
+	}
 	
 }

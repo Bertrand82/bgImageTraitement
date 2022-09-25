@@ -18,6 +18,7 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -34,7 +35,8 @@ public class ImageUI {
 	List<BufferedImage> listBufferedImage = new ArrayList<BufferedImage>();
 	PanelImage panelImage = new PanelImage();
 	PanelProcessHistogram panelHistogram = new PanelProcessHistogram();
-	final JFileChooser fc = new JFileChooser();
+	JLabel labelLog = new JLabel("");
+	final JFileChooser fileChooser = new JFileChooser();
 
 	public static void main(String[] a) {
 		System.err.println(" start bgImageTraitement");
@@ -48,7 +50,7 @@ public class ImageUI {
 		panelGlobal.add(createMenuBar(), BorderLayout.NORTH);
 		panelGlobal.add(panelImage, BorderLayout.CENTER);
 		panelGlobal.add(panelHistogram, BorderLayout.EAST);
-
+		panelGlobal.add(labelLog, BorderLayout.SOUTH);
 		jframe.add(panelGlobal);
 		jframe.setTitle("Bg Traitement Image");
 		jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -70,22 +72,22 @@ public class ImageUI {
 
 		mnuFile.addSeparator();
 
-		JMenuItem mnuOpenFile = new JMenuItem("Open File ...");
+		JMenuItem mnuOpenFile = new JMenuItem("Open Image File ...");
 		mnuFile.add(mnuOpenFile);
 		mnuOpenFile.addActionListener((event) -> {
 			chooseImage();
 		});
 
-		JMenuItem mnuSaveFile = new JMenuItem("Save File ...");
+		JMenuItem mnuSaveFile = new JMenuItem("Save Image File ...");
 		mnuFile.add(mnuSaveFile);
 		mnuSaveFile.addActionListener((event) -> {
-			System.out.println("save file No implemented " + event);
+			saveImage();
 		});
 
-		JMenuItem mnuSaveFileAs = new JMenuItem("Save File As ...");
+		JMenuItem mnuSaveFileAs = new JMenuItem("Save Image File As ...");
 		mnuFile.add(mnuSaveFileAs);
-		mnuSaveFile.addActionListener((event) -> {
-			saveAs();
+		mnuSaveFileAs.addActionListener((event) -> {
+			saveImageAs();
 		});
 
 		mnuFile.addSeparator();
@@ -177,30 +179,46 @@ public class ImageUI {
 		return menuBar;
 	}
 
+	private void saveImage() {
+		log("saveImage ");
+		if (fileImageFrom != null) {
+			saveImage(fileImageFrom);
+		}
+	}
+
+	private void saveImage(File file) {
+		log("saveImage " + file.getName());
+		ImageBgTool.saveImageToFile( getBufferedImage(),file);
+	}
+
 	private void flipFlop() {
+		log("flipflop");
 		FiltreInverseColor filtreInverscolor = new FiltreInverseColor();
 		BufferedImage b1 = ImageFiltre.createBufferedImage(this.panelImage.getBufferedImage(), filtreInverscolor);
 		this.setBufferedImage(b1);
-		
+
 	}
 
-	private void saveAs() {
+	private void saveImageAs() {
 		try {
-			System.out.println("save as ");
-			File outputfile = new File("transformed.jpg");
-			ImageIO.write(this.panelImage.getBufferedImage(), "jpg", outputfile);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			int returnValue = fileChooser.showOpenDialog(this.panelImage);
+			if (returnValue == JFileChooser.APPROVE_OPTION) {
+				File fileToSave = fileChooser.getSelectedFile();
+				log("save image as " + fileToSave.getName());
+				ImageBgTool.saveImageToFile(getBufferedImage(), fileToSave);
+			}
+		} catch (Exception e) {
+			log("saveAs Exception " + e.getMessage());
 			e.printStackTrace();
 		}
 
 	}
 
 	private void chooseImage() {
-		int returnVal = fc.showOpenDialog(this.panelImage);
+		int returnVal = fileChooser.showOpenDialog(this.panelImage);
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File file = fc.getSelectedFile();
+			File file = fileChooser.getSelectedFile();
 			log("Open command ");
 			this.loadImage(file);
 		} else {
@@ -210,6 +228,7 @@ public class ImageUI {
 
 	private void log(String s) {
 		System.out.println("log " + s);
+		this.labelLog.setText(s);
 	}
 
 	private void toGrey() {
@@ -226,12 +245,12 @@ public class ImageUI {
 		Histogram histogramme = this.panelImage.getHistogram();
 		this.panelHistogram.setHistogram(histogramme);
 		this.panelHistogram.repaint();
-		System.out.println(" histo ::: " + histogramme.toStringDetail());
+		log(" histo ::: " + histogramme.toStringDetail());
 
 	}
 
 	private void process() {
-		System.out.println("------------->process");
+		log("------------->process");
 		FiltreSeuilRedisplay filtreSeuil1 = new FiltreSeuilRedisplay(30, 0xd8, true, true, false);
 		BufferedImage b1 = ImageFiltre.createBufferedImage(this.panelImage.getBufferedImage(), filtreSeuil1);
 		setBufferedImage(b1);
@@ -241,8 +260,11 @@ public class ImageUI {
 		this.panelImage.repaint();
 	}
 
+	File fileImageFrom;
+
 	private void loadImage(File f) {
-		System.out.println("Process ");
+		log("Process loadImage " + f.getName());
+		this.fileImageFrom = f;
 		BufferedImage bufferedImage = ImageBgTool.readImage(f);
 		BufferedImage bufferedImage2 = ImageBgTool.convertToRgb(bufferedImage);
 		setBufferedImage(bufferedImage2);
@@ -250,7 +272,7 @@ public class ImageUI {
 	}
 
 	private void edge() {
-		System.out.println("edge ");
+		log("edge ");
 
 		BufferedImage srcbimg = this.panelImage.getBufferedImage();
 		BufferedImage dstbimg = ImageBgTool.getEdge(srcbimg);
@@ -259,9 +281,9 @@ public class ImageUI {
 	}
 
 	private void blur() {
-		System.out.println("blur ");
+		log("blur ");
 		BufferedImage srcbimg = this.panelImage.getBufferedImage();
-		BufferedImage dstbimg = ImageBgTool.blur2(srcbimg,3);
+		BufferedImage dstbimg = ImageBgTool.blur2(srcbimg, 3);
 		setBufferedImage(dstbimg);
 		panelImage.repaint();
 	}

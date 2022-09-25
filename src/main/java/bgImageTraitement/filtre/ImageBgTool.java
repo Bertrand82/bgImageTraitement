@@ -98,6 +98,31 @@ public class ImageBgTool {
 		}
 	}
 	
+	public static void saveImageToFile(BufferedImage bufferedImage,File fileImage)  {
+		try {
+			String type = getTypeFromFile(fileImage.getName());
+			ImageIO.write(bufferedImage, type, fileImage);
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+			
+		}
+	}
+	
+	public static void main(String[] s){
+		test("zzozoz.jpg");
+	}
+	private static void test(String name) {
+		System.out.println("  "+name +"    "+getTypeFromFile(name));
+	}
+
+	private static String getTypeFromFile(String fileImageNAme) {
+		
+		String suffix= fileImageNAme.substring(fileImageNAme.lastIndexOf("."));
+		
+		return "jpg";
+	}
+	
 	
 
 }

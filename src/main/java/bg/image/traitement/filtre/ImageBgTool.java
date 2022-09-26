@@ -1,4 +1,4 @@
-package bgImageTraitement.filtre;
+package bg.image.traitement.filtre;
 
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;

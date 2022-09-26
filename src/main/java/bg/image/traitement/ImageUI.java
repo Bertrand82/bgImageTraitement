@@ -1,4 +1,4 @@
-package bgImageTraitement;
+package bg.image.traitement;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -25,10 +25,10 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
-import bgImageTraitement.filtre.FiltreInverseColor;
-import bgImageTraitement.filtre.FiltreSeuilRedisplay;
-import bgImageTraitement.filtre.ImageBgTool;
-import bgImageTraitement.filtre.ImageFiltre;
+import bg.image.traitement.filtre.FiltreInverseColor;
+import bg.image.traitement.filtre.FiltreSeuilRedisplay;
+import bg.image.traitement.filtre.ImageBgTool;
+import bg.image.traitement.filtre.ImageFiltre;
 
 public class ImageUI {
 	File fileImageTest = new File("images/maison.jpg");
@@ -64,7 +64,7 @@ public class ImageUI {
 	private JMenuBar createMenuBar() {
 
 		// La barre de menu à proprement parler
-		JMenuBar menuBar = new JMenuBar();
+		JMenuBar menuBar2 = new JMenuBar();
 
 		// Définition du menu déroulant "File" et de son contenu
 		JMenu mnuFile = new JMenu("File");
@@ -97,7 +97,7 @@ public class ImageUI {
 		mnuExit.addActionListener((event) -> {
 			System.exit(0);
 		});
-		menuBar.add(mnuFile);
+		menuBar2.add(mnuFile);
 
 		// Définition du menu déroulant "Edit" et de son contenu
 		JMenu mnuEdit = new JMenu("Edit");
@@ -118,65 +118,55 @@ public class ImageUI {
 		mnuRedo.addActionListener((event) -> {
 			redo();
 		});
-
 		mnuEdit.addSeparator();
-
-		JMenuItem mnuCopy = new JMenuItem("Copy");
-		mnuCopy.setMnemonic('C');
-		mnuCopy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
-		mnuEdit.add(mnuCopy);
-
-		JMenuItem mnuCut = new JMenuItem("Cut");
-		mnuCut.setMnemonic('t');
-		mnuCut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK));
-		mnuEdit.add(mnuCut);
-
-		JMenuItem mnuPaste = new JMenuItem("Paste");
-		mnuPaste.setMnemonic('P');
-		mnuPaste.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK));
-		mnuEdit.add(mnuPaste);
-
-		menuBar.add(mnuEdit);
+		menuBar2.add(mnuEdit);
 
 		// Définition du menu déroulant "Edit" et de son contenu
+		JMenu mnuActions = new JMenu("Actions");
+		menuBar2.add(mnuActions);
 		JMenuItem mnuFlipFlop = new JMenuItem("Flip Flop");
 		mnuFlipFlop.addActionListener((event) -> flipFlop());
-		menuBar.add(mnuFlipFlop);
+		mnuActions.add(mnuFlipFlop);
 		// Définition du menu déroulant "Edit" et de son contenu
 		JMenuItem mnuToRGB = new JMenuItem("To RGB");
 		mnuToRGB.addActionListener((event) -> toRGB());
 		mnuEdit.setMnemonic('R');
-		menuBar.add(mnuToRGB);
+		mnuActions.add(mnuToRGB);
 
 		JMenuItem mnuToGrey = new JMenuItem("To Grey");
 		mnuToGrey.addActionListener((event) -> toGrey());
 		mnuEdit.setMnemonic('R');
-		menuBar.add(mnuToGrey);
+		mnuActions.add(mnuToGrey);
 		// Définition du menu déroulant "Edit" et de son contenu
 		JMenuItem mnuHisto = new JMenuItem("Histo");
 		mnuHisto.addActionListener((event) -> processHistogram());
-		mnuEdit.setMnemonic('R');
-		menuBar.add(mnuHisto);
+		menuBar2.add(mnuHisto);
 		JMenuItem mnuBlur = new JMenuItem("Blur");
 		mnuBlur.addActionListener((event) -> blur());
 		mnuBlur.setMnemonic('R');
-		menuBar.add(mnuBlur);
+		mnuActions.add(mnuBlur);
 		JMenuItem mnuEdge = new JMenuItem("Edge");
 		mnuEdge.addActionListener((event) -> edge());
-		mnuEdit.setMnemonic('R');
-		menuBar.add(mnuEdge);
+		mnuActions.add(mnuEdge);
+		
 		JMenuItem mnuProcess = new JMenuItem("Process");
 		mnuProcess.addActionListener((event) -> process());
-		mnuEdit.setMnemonic('R');
-		menuBar.add(mnuProcess);
+		menuBar2.add(mnuProcess);
 
 		// Définition du menu déroulant "Help" et de son contenu
-		JMenu mnuHelp = new JMenu("Help");
-		mnuHelp.setMnemonic('H');
+		JMenuItem mnuMerge2 = new JMenuItem("merge");	
+		mnuMerge2.addActionListener((event) ->merge2());
+		menuBar2.add(mnuMerge2);
+		
+		JMenu mnuHelp = new JMenu("Help");		
+		menuBar2.add(mnuHelp);
 
-		menuBar.add(mnuHelp);
+		return menuBar2;
+	}
 
-		return menuBar;
+	private void merge2() {
+		System.err.println("pouer merge");
+		this.log("merge");
 	}
 
 	private void saveImage() {
@@ -269,6 +259,7 @@ public class ImageUI {
 		BufferedImage bufferedImage2 = ImageBgTool.convertToRgb(bufferedImage);
 		setBufferedImage(bufferedImage2);
 		panelImage.repaint();
+		log("Process loadImage " + f.getName()+" done");
 	}
 
 	private void edge() {

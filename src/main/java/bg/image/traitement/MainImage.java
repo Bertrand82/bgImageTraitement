@@ -1,4 +1,4 @@
-package bgImageTraitement;
+package bg.image.traitement;
 
 public class MainImage {
 	

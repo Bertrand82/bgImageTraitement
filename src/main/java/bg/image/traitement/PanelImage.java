@@ -1,4 +1,4 @@
-package bgImageTraitement;
+package bg.image.traitement;
 
 import java.awt.Color;
 import java.awt.Cursor;

@@ -5,6 +5,10 @@
 	<groupId>bg</groupId>
 	<artifactId>bgImageProcess</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<properties>
+		<maven.compiler.source>12</maven.compiler.source>
+		<maven.compiler.target>12</maven.compiler.target>
+	</properties>
 	<dependencies>
 		<!-- https://mvnrepository.com/artifact/net.imagej/ij -->
 		<dependency>
@@ -12,7 +16,7 @@
 			<artifactId>ij</artifactId>
 			<version>1.53t</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>

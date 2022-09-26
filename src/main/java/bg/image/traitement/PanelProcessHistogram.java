@@ -1,4 +1,4 @@
-package bgImageTraitement;
+package bg.image.traitement;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
